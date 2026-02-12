@@ -16,6 +16,11 @@ class ServeMachineView
      */
     public function handle(Request $request, Closure $next)
     {
+        // Check enabled at runtime for tests
+        if (! config('llms-txt.machine_view_enabled', true)) {
+            return $next($request);
+        }
+
         $response = $next($request);
 
         // Skip if not HTML response
@@ -68,7 +73,7 @@ class ServeMachineView
     {
         $contentType = $response->headers->get('Content-Type', '');
 
-        return str_contains(strtolower($contentType), 'text/html');
+        return strpos(strtolower($contentType), 'text/html') !== false;
     }
 
     /**
@@ -88,7 +93,7 @@ class ServeMachineView
         // Check Accept header
         if (in_array($trigger, ['accept', 'all'])) {
             $accept = $request->header('Accept', '');
-            if (str_contains(strtolower($accept), 'text/markdown')) {
+            if (strpos(strtolower($accept), 'text/markdown') !== false) {
                 return true;
             }
         }

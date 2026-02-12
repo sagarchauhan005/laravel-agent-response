@@ -51,6 +51,11 @@ class LlmsTxtServiceProvider extends ServiceProvider
         $path = ltrim($path, '/');
 
         Route::get($path, function () {
+            // Check enabled at runtime for tests
+            if (! config('llms-txt.enabled', true)) {
+                abort(404);
+            }
+
             $service = app(LlmsTxtService::class);
             $markdown = $service->generate();
 
@@ -77,13 +82,11 @@ class LlmsTxtServiceProvider extends ServiceProvider
             $this->app['router']->pushMiddlewareToGroup('web', Middleware\AddLlmsTxtLinkHeader::class);
         }
 
-        // Register machine view middleware
-        if (config('llms-txt.machine_view_enabled', true)) {
-            $this->app['router']->pushMiddlewareToGroup('web', Middleware\ServeMachineView::class);
-        }
+        // Always register machine view middleware (checks config at runtime)
+        $this->app['router']->pushMiddlewareToGroup('web', Middleware\ServeMachineView::class);
 
         // Register .md extension route if enabled (must be before other routes)
-        if (config('llms-txt.machine_view_enabled', true) && config('llms-txt.md_extension_enabled', true)) {
+        if (config('llms-txt.md_extension_enabled', true)) {
             $this->registerMdExtensionRoute();
         }
     }
@@ -96,6 +99,11 @@ class LlmsTxtServiceProvider extends ServiceProvider
         // Register route pattern that matches any path ending in .md
         // This must be registered early, so it's in registerRoutes which is called in boot
         Route::get('{path}.md', function ($path) {
+            // Check enabled at runtime for tests
+            if (! config('llms-txt.machine_view_enabled', true)) {
+                abort(404);
+            }
+
             $request = request();
 
             // Skip llms.txt.md
@@ -148,7 +156,7 @@ class LlmsTxtServiceProvider extends ServiceProvider
     {
         $contentType = $response->headers->get('Content-Type', '');
 
-        return str_contains(strtolower($contentType), 'text/html');
+        return strpos(strtolower($contentType), 'text/html') !== false;
     }
 
     /**

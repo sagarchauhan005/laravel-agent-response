@@ -36,6 +36,9 @@ abstract class TestCase extends Orchestra
      */
     protected function defineEnvironment($app)
     {
+        // Minimal app config required for tests
+        $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
+
         $app['config']->set('llms-txt.enabled', true);
         $app['config']->set('llms-txt.title', 'Test App');
         $app['config']->set('llms-txt.description', 'Test description');

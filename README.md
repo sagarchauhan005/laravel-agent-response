@@ -268,8 +268,8 @@ Quick start:
 
 ## Requirements
 
-- PHP ^8.0
-- Laravel ^8.0|^9.0|^10.0|^11.0
+- PHP ^7.2.5|^8.0
+- Laravel ^7.0|^8.0|^9.0|^10.0|^11.0|^12.0
 
 ## License
 

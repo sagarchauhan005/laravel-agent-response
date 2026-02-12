@@ -7,7 +7,10 @@ use Sagarchauhan005\LaravelLlmsTxt\Tests\TestCase;
 
 class LlmsTxtWriterTest extends TestCase
 {
-    protected LlmsTxtWriter $writer;
+    /**
+     * @var LlmsTxtWriter
+     */
+    protected $writer;
 
     protected function setUp(): void
     {

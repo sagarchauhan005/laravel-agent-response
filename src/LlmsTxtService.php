@@ -5,11 +5,17 @@ namespace Sagarchauhan005\LaravelLlmsTxt;
 class LlmsTxtService
 {
     /**
+     * @var LlmsTxtWriter
+     */
+    protected $writer;
+
+    /**
      * Create a new LlmsTxtService instance.
      */
-    public function __construct(
-        protected LlmsTxtWriter $writer
-    ) {}
+    public function __construct(LlmsTxtWriter $writer)
+    {
+        $this->writer = $writer;
+    }
 
     /**
      * Generate llms.txt markdown content.

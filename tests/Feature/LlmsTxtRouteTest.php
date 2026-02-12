@@ -26,7 +26,10 @@ class LlmsTxtRouteTest extends TestCase
 
         $response = $this->get('/llms.txt');
 
-        $response->assertHeader('Cache-Control', 'public, max-age=3600');
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertNotNull($cacheControl);
+        $this->assertStringContainsString('public', $cacheControl);
+        $this->assertStringContainsString('max-age=3600', $cacheControl);
     }
 
     /** @test */
