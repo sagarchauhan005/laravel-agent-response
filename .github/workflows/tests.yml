@@ -62,6 +62,10 @@ jobs:
         run: |
           composer require "illuminate/support:${{ matrix.laravel }}" --no-interaction --no-update
           composer require "illuminate/routing:${{ matrix.laravel }}" --no-interaction --no-update
+          # Skip Pint for PHP < 8.0 (Pint requires PHP 8.0+)
+          if [ "${{ matrix.php }}" -lt 8 ]; then
+            composer remove laravel/pint --no-interaction --no-update || true
+          fi
           composer update --prefer-dist --no-interaction
 
       - name: Run Pint
