@@ -64,7 +64,7 @@ jobs:
           composer require "illuminate/routing:${{ matrix.laravel }}" --no-interaction --no-update
           # Skip Pint for PHP < 8.0 (Pint requires PHP 8.0+)
           php_version="${{ matrix.php }}"
-          if [ "$(printf '%s\n' "7.9" "$php_version" | sort -V | head -n1)" != "$php_version" ]; then
+          if [ "$(printf '%s\n' "7.9" "$php_version" | sort -V | head -n1)" = "7.9" ]; then
             composer remove laravel/pint --no-interaction --no-update || true
           fi
           composer update --prefer-dist --no-interaction
