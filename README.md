@@ -16,7 +16,7 @@ A Laravel package that implements the [llms.txt standard](https://llmstxt.org/) 
 ## Installation
 
 ```bash
-composer require your-vendor/laravel-llms-txt
+composer require sagarchauhan005/laravel-llms-txt
 ```
 
 Publish the configuration file:

@@ -1,9 +1,9 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt\Tests;
+namespace Sagarchauhan005\LaravelLlmsTxt\Tests;
 
 use Orchestra\Testbench\TestCase as Orchestra;
-use YourVendor\LaravelLlmsTxt\LlmsTxtServiceProvider;
+use Sagarchauhan005\LaravelLlmsTxt\LlmsTxtServiceProvider;
 
 abstract class TestCase extends Orchestra
 {

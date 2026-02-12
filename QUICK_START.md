@@ -15,13 +15,13 @@ In your test Laravel project's `composer.json`:
         }
     ],
     "require": {
-        "your-vendor/laravel-llms-txt": "@dev"
+        "sagarchauhan005/laravel-llms-txt": "@dev"
     }
 }
 ```
 
 ```bash
-composer require your-vendor/laravel-llms-txt:@dev
+composer require sagarchauhan005/laravel-llms-txt:@dev
 php artisan vendor:publish --tag=llms-txt-config
 ```
 

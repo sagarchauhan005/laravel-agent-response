@@ -1,5 +1,5 @@
 {
-    "name": "your-vendor/laravel-llms-txt",
+    "name": "sagarchauhan005/laravel-llms-txt",
     "description": "Laravel package for llms.txt standard - serves /llms.txt endpoint and provides Human/Machine markdown views for SSR pages",
     "keywords": [
         "laravel",
@@ -24,18 +24,18 @@
     },
     "autoload": {
         "psr-4": {
-            "YourVendor\\LaravelLlmsTxt\\": "src/"
+            "Sagarchauhan005\\LaravelLlmsTxt\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "YourVendor\\LaravelLlmsTxt\\Tests\\": "tests/"
+            "Sagarchauhan005\\LaravelLlmsTxt\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "YourVendor\\LaravelLlmsTxt\\LlmsTxtServiceProvider"
+                "Sagarchauhan005\\LaravelLlmsTxt\\LlmsTxtServiceProvider"
             ]
         }
     },

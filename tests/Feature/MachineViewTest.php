@@ -1,8 +1,8 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt\Tests\Feature;
+namespace Sagarchauhan005\LaravelLlmsTxt\Tests\Feature;
 
-use YourVendor\LaravelLlmsTxt\Tests\TestCase;
+use Sagarchauhan005\LaravelLlmsTxt\Tests\TestCase;
 
 class MachineViewTest extends TestCase
 {

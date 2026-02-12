@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt;
+namespace Sagarchauhan005\LaravelLlmsTxt;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;

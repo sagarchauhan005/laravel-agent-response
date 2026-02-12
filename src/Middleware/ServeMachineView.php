@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt\Middleware;
+namespace Sagarchauhan005\LaravelLlmsTxt\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

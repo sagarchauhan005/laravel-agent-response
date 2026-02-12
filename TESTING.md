@@ -27,21 +27,21 @@ Edit `composer.json` in your test project:
         }
     ],
     "require": {
-        "your-vendor/laravel-llms-txt": "@dev"
+        "sagarchauhan005/laravel-llms-txt": "@dev"
     }
 }
 ```
 
 Then run:
 ```bash
-composer require your-vendor/laravel-llms-txt:@dev
+composer require sagarchauhan005/laravel-llms-txt:@dev
 ```
 
 ### Option B: Using Symlink
 
 ```bash
 # From your test project root
-ln -s ../../laravel-agent-response vendor/your-vendor/laravel-llms-txt
+ln -s ../../laravel-agent-response vendor/sagarchauhan005/laravel-llms-txt
 ```
 
 ## Step 3: Publish Configuration
@@ -230,7 +230,7 @@ Create test Blade views to test the markdown conversion:
         <p>Follow these steps to install the package.</p>
         
         <h2>Step 1: Install via Composer</h2>
-        <pre><code>composer require your-vendor/laravel-llms-txt</code></pre>
+        <pre><code>composer require sagarchauhan005/laravel-llms-txt</code></pre>
         
         <h2>Step 2: Publish Configuration</h2>
         <pre><code>php artisan vendor:publish --tag=llms-txt-config</code></pre>

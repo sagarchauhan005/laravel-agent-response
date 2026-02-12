@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt;
+namespace Sagarchauhan005\LaravelLlmsTxt;
 
 class LlmsTxtService
 {

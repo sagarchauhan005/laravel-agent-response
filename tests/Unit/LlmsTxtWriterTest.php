@@ -1,9 +1,9 @@
 <?php
 
-namespace YourVendor\LaravelLlmsTxt\Tests\Unit;
+namespace Sagarchauhan005\LaravelLlmsTxt\Tests\Unit;
 
-use YourVendor\LaravelLlmsTxt\LlmsTxtWriter;
-use YourVendor\LaravelLlmsTxt\Tests\TestCase;
+use Sagarchauhan005\LaravelLlmsTxt\LlmsTxtWriter;
+use Sagarchauhan005\LaravelLlmsTxt\Tests\TestCase;
 
 class LlmsTxtWriterTest extends TestCase
 {
