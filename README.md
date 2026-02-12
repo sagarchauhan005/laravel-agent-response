@@ -13,6 +13,82 @@ A Laravel package that implements the [llms.txt standard](https://llmstxt.org/) 
 - **Cache headers**: Configurable HTTP cache headers for all markdown responses
 - **Main content extraction**: Optionally extract only main content (e.g. `main`, `.prose`) to reduce tokens
 
+## Philosophy and best practices
+
+llms.txt is meant to be a **high‑signal index for agents**, not an exhaustive dump of every URL on your site.
+This package is designed around a few principles:
+
+- **Curated, not crawled**: You explicitly choose the most important pages (docs, pricing, policies, key flows)
+  instead of auto‑discovering every route. This keeps the file small, readable, and cheap to consume in tokens.
+- **Stable entry points**: llms.txt should highlight URLs that are unlikely to change often (collections, category
+  indexes, key docs, sitemap URLs) rather than every product page or blog post.
+- **One source of truth**: All content comes from `config/llms-txt.php` (plus your own extensions if you want),
+  so you can review changes in code review and keep it in version control.
+
+### Recommended setup
+
+- **Start small**:
+  - Add a handful of sections (e.g. `Getting Started`, `Products`, `Policies`, `Support`).
+  - Link to category/index pages, not every individual item.
+- **Use presets**:
+  - Pick the closest `use_case` (`docs`, `business`, `ecommerce`, `education`, `legislation`) and then
+    fill in the `sections` for that shape rather than designing your own from scratch.
+- **Keep it human‑readable**:
+  - Use clear titles and short `notes` so humans and agents both understand why a link matters.
+  - Avoid dumping raw query URLs, deep pagination, or “internal only” tools.
+- **Limit size**:
+  - Prefer linking to sitemaps (`/sitemap.xml`, `/products-sitemap.xml`) or collection pages for huge catalogs.
+  - If you generate links dynamically (e.g. from products/categories), limit to featured/top N items.
+
+In practice, treat llms.txt like a **README for agents**: the place you intentionally point them at the
+best starting points instead of making them guess or crawl the entire site.
+
+### Dynamic content examples
+
+For larger, dynamic sites (like e‑commerce), you can keep the llms.txt philosophy and still generate parts
+of it from your database:
+
+- **Products section**: instead of every SKU, expose just featured/top N products:
+
+  ```php
+  // In a custom LlmsTxtService in your app
+  $config['sections']['Products'] = Product::query()
+      ->where('is_featured', true)
+      ->limit(100)
+      ->get()
+      ->map(fn ($product) => [
+          'title' => $product->name,
+          'url'   => route('product.show', $product),
+          'notes' => $product->short_description,
+      ])
+      ->all();
+  ```
+
+- **Categories/Collections section**: list stable entry points:
+
+  ```php
+  $config['sections']['Categories'] = Category::query()
+      ->orderBy('name')
+      ->get()
+      ->map(fn ($category) => [
+          'title' => $category->name,
+          'url'   => route('category.show', $category),
+      ])
+      ->all();
+  ```
+
+- **Sitemaps**: for very large catalogs, add links to your sitemaps instead of every product:
+
+  ```php
+  $config['sections']['Optional'][] = [
+      'title' => 'Product sitemap',
+      'url'   => url('/products-sitemap.xml'),
+      'notes' => 'All product URLs for crawlers and agents',
+  ];
+  ```
+
+This keeps llms.txt concise and high‑value, while still giving agents a path to the full structure.
+
 ## Installation
 
 ```bash
@@ -135,18 +211,40 @@ Provides sections: Overview, Sections, Optional
 
 ## Environment Variables
 
+### Minimal setup (recommended defaults)
+
+For most apps you only need a few env vars; everything else can stay in `config/llms-txt.php`:
+
 ```env
 LLMS_TXT_ENABLED=true
+LLMS_TXT_DESCRIPTION="Short, high-signal summary of what this site is for"
+LLMS_TXT_USE_CASE=docs   # or: business / ecommerce / education / legislation / custom
+LLMS_TXT_TITLE="My App"  # optional; falls back to APP_NAME
+```
+
+Then define your actual links in `config/llms-txt.php` under the `sections` key.
+
+### Advanced tuning (optional)
+
+Only reach for these when you have a concrete reason (performance, SEO, or custom behavior):
+
+```env
+# Endpoint / routing
 LLMS_TXT_PATH=llms.txt
-LLMS_TXT_USE_CASE=custom
-LLMS_TXT_TITLE="My App"
-LLMS_TXT_DESCRIPTION="Description here"
+
+# Machine view behavior
 LLMS_TXT_MACHINE_VIEW_ENABLED=true
 LLMS_TXT_MD_EXTENSION_ENABLED=true
-LLMS_TXT_MAIN_CONTENT_SELECTOR=main
+LLMS_TXT_MACHINE_VIEW_TRIGGER=all   # query | accept | header | all
+LLMS_TXT_MAIN_CONTENT_SELECTOR=main # e.g. main, #content, .prose
+
+# Caching
 LLMS_TXT_CACHE_ENABLED=true
 LLMS_TXT_CACHE_MAX_AGE=3600
-LLMS_TXT_CACHE_VISIBILITY=public
+LLMS_TXT_CACHE_VISIBILITY=public    # public | private
+LLMS_TXT_CACHE_ETAG=false
+
+# Discovery nicety
 LLMS_TXT_ADD_LINK_HEADER=false
 ```
 
