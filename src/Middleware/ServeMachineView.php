@@ -12,8 +12,6 @@ class ServeMachineView
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -65,7 +63,6 @@ class ServeMachineView
      * Check if response is HTML.
      *
      * @param  mixed  $response
-     * @return bool
      */
     protected function isHtmlResponse($response): bool
     {
@@ -76,9 +73,6 @@ class ServeMachineView
 
     /**
      * Check if request is a "Machine" request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return bool
      */
     protected function isMachineRequest(Request $request): bool
     {
@@ -111,20 +105,17 @@ class ServeMachineView
 
     /**
      * Convert HTML to markdown.
-     *
-     * @param  string  $html
-     * @return string
      */
     public function convertHtmlToMarkdown(string $html): string
     {
         // Extract main content if selector is configured
         $selector = config('llms-txt.main_content_selector');
-        
+
         if ($selector) {
             try {
                 $crawler = new Crawler($html);
                 $mainContent = $crawler->filter($selector);
-                
+
                 if ($mainContent->count() > 0) {
                     $html = $mainContent->outerHtml();
                 }
@@ -147,14 +138,12 @@ class ServeMachineView
      * Add cache headers to response.
      *
      * @param  mixed  $response
-     * @param  string  $content
-     * @return void
      */
     protected function addCacheHeaders($response, string $content): void
     {
         $maxAge = config('llms-txt.cache_max_age', 3600);
         $visibility = config('llms-txt.cache_visibility', 'public');
-        
+
         $cacheControl = sprintf('%s, max-age=%d', $visibility, $maxAge);
         $response->headers->set('Cache-Control', $cacheControl);
 

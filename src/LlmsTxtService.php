@@ -9,13 +9,10 @@ class LlmsTxtService
      */
     public function __construct(
         protected LlmsTxtWriter $writer
-    ) {
-    }
+    ) {}
 
     /**
      * Generate llms.txt markdown content.
-     *
-     * @return string
      */
     public function generate(): string
     {
@@ -31,8 +28,6 @@ class LlmsTxtService
 
     /**
      * Get merged config with preset applied.
-     *
-     * @return array
      */
     protected function getMergedConfig(): array
     {

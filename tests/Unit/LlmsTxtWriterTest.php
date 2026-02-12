@@ -12,7 +12,7 @@ class LlmsTxtWriterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->writer = new LlmsTxtWriter();
+        $this->writer = new LlmsTxtWriter;
     }
 
     /** @test */

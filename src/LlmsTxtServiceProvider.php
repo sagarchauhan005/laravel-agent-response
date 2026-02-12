@@ -3,8 +3,8 @@
 namespace Sagarchauhan005\LaravelLlmsTxt;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\ServiceProvider;
 
 class LlmsTxtServiceProvider extends ServiceProvider
 {
@@ -19,7 +19,7 @@ class LlmsTxtServiceProvider extends ServiceProvider
         );
 
         $this->app->singleton(LlmsTxtService::class, function ($app) {
-            return new LlmsTxtService(new LlmsTxtWriter());
+            return new LlmsTxtService(new LlmsTxtWriter);
         });
     }
 
@@ -81,13 +81,12 @@ class LlmsTxtServiceProvider extends ServiceProvider
         if (config('llms-txt.machine_view_enabled', true)) {
             $this->app['router']->pushMiddlewareToGroup('web', Middleware\ServeMachineView::class);
         }
-        
+
         // Register .md extension route if enabled (must be before other routes)
         if (config('llms-txt.machine_view_enabled', true) && config('llms-txt.md_extension_enabled', true)) {
             $this->registerMdExtensionRoute();
         }
     }
-
 
     /**
      * Register catch-all route for .md extension.
@@ -98,25 +97,25 @@ class LlmsTxtServiceProvider extends ServiceProvider
         // This must be registered early, so it's in registerRoutes which is called in boot
         Route::get('{path}.md', function ($path) {
             $request = request();
-            
+
             // Skip llms.txt.md
             if ($path === config('llms-txt.path', 'llms.txt')) {
                 abort(404);
             }
-            
+
             // Create a new request for the original path
             $originalRequest = Request::create('/'.$path, $request->method(), $request->all());
             $originalRequest->headers->replace($request->headers->all());
-            
+
             // Dispatch to get the original response
             $response = $this->app->handle($originalRequest);
-            
+
             // If it's HTML, convert to markdown
             if ($this->isHtmlResponse($response)) {
                 $markdown = app(Middleware\ServeMachineView::class)->convertHtmlToMarkdown(
                     $response->getContent()
                 );
-                
+
                 $markdownResponse = response($markdown, $response->status(), [
                     'Content-Type' => 'text/markdown; charset=UTF-8',
                 ]);
@@ -134,10 +133,10 @@ class LlmsTxtServiceProvider extends ServiceProvider
                 if (config('llms-txt.cache_enabled', true)) {
                     $this->addCacheHeaders($markdownResponse, $markdown);
                 }
-                
+
                 return $markdownResponse;
             }
-            
+
             return $response;
         })->where('path', '.*')->middleware(config('llms-txt.middleware', ['web']));
     }
@@ -159,7 +158,7 @@ class LlmsTxtServiceProvider extends ServiceProvider
     {
         $maxAge = config('llms-txt.cache_max_age', 3600);
         $visibility = config('llms-txt.cache_visibility', 'public');
-        
+
         $cacheControl = sprintf('%s, max-age=%d', $visibility, $maxAge);
         $response->headers->set('Cache-Control', $cacheControl);
 

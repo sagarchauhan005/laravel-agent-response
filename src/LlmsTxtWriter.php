@@ -6,12 +6,6 @@ class LlmsTxtWriter
 {
     /**
      * Write llms.txt markdown from structured data.
-     *
-     * @param  string  $title
-     * @param  string  $description
-     * @param  string|null  $body
-     * @param  array  $sections
-     * @return string
      */
     public function write(string $title, string $description, ?string $body, array $sections): string
     {
@@ -52,7 +46,7 @@ class LlmsTxtWriter
                 }
 
                 $linkMarkdown = '- ['.$this->escapeMarkdown($title).']('.$url.')';
-                
+
                 if ($notes) {
                     $linkMarkdown .= ': '.$this->escapeMarkdown($notes);
                 }
@@ -68,9 +62,6 @@ class LlmsTxtWriter
 
     /**
      * Escape markdown special characters in text.
-     *
-     * @param  string  $text
-     * @return string
      */
     protected function escapeMarkdown(string $text): string
     {
@@ -78,7 +69,7 @@ class LlmsTxtWriter
         // But preserve links and other intentional markdown
         // For now, we'll escape brackets and backticks that aren't part of links
         // This is a simple approach - could be enhanced
-        
+
         // Don't escape if it looks like a markdown link [text](url)
         if (preg_match('/\[.*?\]\(.*?\)/', $text)) {
             return $text;
