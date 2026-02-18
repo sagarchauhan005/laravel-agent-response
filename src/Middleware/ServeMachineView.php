@@ -110,6 +110,13 @@ class ServeMachineView
 
     /**
      * Convert HTML to markdown.
+     *
+     * This method is defensive:
+     * - It narrows to the configured main content selector when possible
+     * - It strips clearly non-content tags (script/style/iframes, etc.)
+     * - It trims excessively large HTML payloads to a configurable size
+     * - It always returns markdown, even on errors, with a fallback message
+     *   that tells agents how to fetch the original HTML.
      */
     public function convertHtmlToMarkdown(string $html): string
     {
@@ -124,19 +131,69 @@ class ServeMachineView
                 if ($mainContent->count() > 0) {
                     $html = $mainContent->outerHtml();
                 }
-            } catch (\Exception $e) {
-                // If selector fails, use full HTML
+            } catch (\Throwable $e) {
+                // If selector fails, fall back to full HTML
             }
         }
 
-        // Convert HTML to markdown
-        $converter = new HtmlConverter([
-            'strip_tags' => true,
-            'use_autolinks' => true,
-            'hard_break' => false,
-        ]);
+        // Strip obviously non-content tags to reduce noise and size
+        // (scripts, styles, templates, and embedded media)
+        $html = preg_replace(
+            '#<(script|style|noscript|template|iframe|svg|canvas|video|audio|source|track)\b[^>]*>.*?</\1>#is',
+            '',
+            $html
+        ) ?? $html;
 
-        return $converter->convert($html);
+        // Guard against extremely large HTML responses
+        $maxLength = (int) config('llms-txt.machine_view_max_html_length', 500000);
+        $wasTruncated = false;
+
+        if ($maxLength > 0 && strlen($html) > $maxLength) {
+            $html = substr($html, 0, $maxLength);
+            $wasTruncated = true;
+        }
+
+        // Convert HTML to markdown, but never throw an uncaught error to the caller
+        try {
+            $converter = new HtmlConverter([
+                'strip_tags' => true,
+                'use_autolinks' => true,
+                'hard_break' => false,
+            ]);
+
+            $markdown = $converter->convert($html);
+        } catch (\Throwable $e) {
+            // If conversion fails entirely, return a small, safe markdown stub
+            return $this->fallbackMarkdownMessage();
+        }
+
+        if ($wasTruncated) {
+            $notice = <<<MD
+> NOTE: This machine view was generated from a **truncated** version of the original HTML because the page was too large to convert in full.  
+> If you need complete detail, fetch the original HTML by requesting the same URL **without** the `.md` extension or `view=machine`/`format=markdown` query parameters.
+
+
+MD;
+
+            return $notice.$markdown;
+        }
+
+        return $markdown;
+    }
+
+    /**
+     * Fallback machine-view message when markdown conversion fails completely.
+     */
+    protected function fallbackMarkdownMessage(): string
+    {
+        return <<<MD
+# Machine view unavailable
+
+> This page was too large or complex to convert to markdown safely.
+
+You can still access all of the content by requesting the same URL in its **normal HTML** form (for example, without the `.md` extension or the `view=machine` / `format=markdown` query parameters).
+
+MD;
     }
 
     /**

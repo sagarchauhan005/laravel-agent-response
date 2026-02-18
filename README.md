@@ -236,7 +236,8 @@ LLMS_TXT_PATH=llms.txt
 LLMS_TXT_MACHINE_VIEW_ENABLED=true
 LLMS_TXT_MD_EXTENSION_ENABLED=true
 LLMS_TXT_MACHINE_VIEW_TRIGGER=all   # query | accept | header | all
-LLMS_TXT_MAIN_CONTENT_SELECTOR=main # e.g. main, #content, .prose
+LLMS_TXT_MAIN_CONTENT_SELECTOR=main # optional CSS selector for "main" content
+LLMS_TXT_MACHINE_VIEW_MAX_HTML_LENGTH=500000 # optional safety limit for very large HTML pages
 
 # Caching
 LLMS_TXT_CACHE_ENABLED=true
@@ -247,6 +248,19 @@ LLMS_TXT_CACHE_ETAG=false
 # Discovery nicety
 LLMS_TXT_ADD_LINK_HEADER=false
 ```
+
+### How main content selection works
+
+By default the package **does not require** a `<main>` tag or any specific HTML wrapper:
+
+- If `main_content_selector` / `LLMS_TXT_MAIN_CONTENT_SELECTOR` is **set and matches elements** (for example the default `'main'` and your layout uses `<main>...</main>`), then **only that matched region** is converted to markdown for the machine view.
+- If the selector is **set but matches nothing** on the page, the package simply falls back to converting the **entire HTML response** to markdown.
+- If the selector is **`null` or an empty string**, the selector step is skipped and again the **entire HTML response** is converted.
+
+This means:
+
+- Using `<main>` is a **convention, not a requirement**; you can point the selector at any container (`#content`, `.prose`, `[data-llms-main]`, a custom element, etc.).
+- The llms.txt **spec only defines the `/llms.txt` index file**; the per‑route machine view is a convenience built on top, and will always return a markdown representation of your HTML (either narrowed to the selector or using the full document).
 
 ## Testing
 

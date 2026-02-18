@@ -134,6 +134,11 @@ return [
 
     'main_content_selector' => env('LLMS_TXT_MAIN_CONTENT_SELECTOR', 'main'), // e.g. 'main', '#content', '.prose', null
 
+    // Maximum size of HTML (in bytes/characters) to attempt converting to markdown.
+    // Larger responses will be truncated and annotated in the machine view output
+    // so that agents know to fetch the full HTML if needed.
+    'machine_view_max_html_length' => env('LLMS_TXT_MACHINE_VIEW_MAX_HTML_LENGTH', 500000),
+
     /*
     |--------------------------------------------------------------------------
     | Cache Headers
