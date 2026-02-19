@@ -281,8 +281,9 @@ MD;
 
             // Collapse multiple spaces to single space (except in URLs)
             // Use fixed-length lookbehinds to avoid PHP 7.2+ compatibility issues
-            // Check for both "http:" (5 chars) and "https:" (6 chars) separately
-            $line = preg_replace('/(?<!https:)(?<!http:)\s{2,}(?!\/\/)/', ' ', $line);
+            // (?<=\S) ensures we only match inline spaces (after non-whitespace), preserving leading indentation
+            // Check for both "http:" (5 chars) and "https:" (6 chars) separately to avoid variable-length lookbehind
+            $line = preg_replace('/(?<=\S)(?<!https:)(?<!http:)\s{2,}(?!\/\/)/', ' ', $line);
 
             $cleaned[] = $line;
         }
