@@ -256,9 +256,7 @@ MD;
                     $prevIndex--;
                 }
                 if ($prevIndex >= 0 && preg_match('/!?\[\]\s*$/', rtrim($cleaned[$prevIndex]))) {
-                    // Remove the standalone `[]` line, we'll merge it with the URL line
-                    array_pop($cleaned);
-                    // Next line should have the URL - we'll handle it in next iteration
+                    // Skip adding this standalone `[]` line - it's redundant
                     continue;
                 }
             }
@@ -277,8 +275,8 @@ MD;
             }
 
             // Remove excessive indentation (more than 4 spaces, except for lists)
-            if (preg_match('/^(\s{5,})/', $line, $matches) && !preg_match('/^(\s*)[-*+]\s/', $line)) {
-                $line = preg_replace('/^\s{4,}/', '    ', $line);
+            if (preg_match('/^\s{5,}/', $line) && !preg_match('/^(\s*)[-*+]\s/', $line)) {
+                $line = preg_replace('/^\s{5,}/', '    ', $line);
             }
 
             // Collapse multiple spaces to single space (except in URLs)
