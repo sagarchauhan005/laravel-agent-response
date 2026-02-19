@@ -280,7 +280,9 @@ MD;
             }
 
             // Collapse multiple spaces to single space (except in URLs)
-            $line = preg_replace('/(?<!https?:)\s{2,}(?!\/\/)/', ' ', $line);
+            // Use fixed-length lookbehinds to avoid PHP 7.2+ compatibility issues
+            // Check for both "http:" (5 chars) and "https:" (6 chars) separately
+            $line = preg_replace('/(?<!https:)(?<!http:)\s{2,}(?!\/\/)/', ' ', $line);
 
             $cleaned[] = $line;
         }
