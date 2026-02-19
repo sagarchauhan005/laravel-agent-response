@@ -167,6 +167,9 @@ class ServeMachineView
             return $this->fallbackMarkdownMessage();
         }
 
+        // Clean whitespace to reduce token waste
+        $markdown = $this->cleanMarkdownWhitespace($markdown);
+
         if ($wasTruncated) {
             $notice = <<<MD
 > NOTE: This machine view was generated from a **truncated** version of the original HTML because the page was too large to convert in full.  
@@ -194,6 +197,102 @@ MD;
 You can still access all of the content by requesting the same URL in its **normal HTML** form (for example, without the `.md` extension or the `view=machine` / `format=markdown` query parameters).
 
 MD;
+    }
+
+    /**
+     * Clean excessive whitespace from markdown to reduce token waste.
+     *
+     * This method:
+     * - Removes excessive blank lines (max 2 consecutive)
+     * - Merges split markdown links/images (e.g., `[]` and `(url)` on separate lines)
+     * - Removes excessive indentation (beyond 4 spaces, except for lists)
+     * - Collapses multiple spaces to single space (preserves URLs and code blocks)
+     *
+     * @param  string  $markdown
+     * @return string
+     */
+    protected function cleanMarkdownWhitespace(string $markdown): string
+    {
+        $lines = explode("\n", $markdown);
+        $cleaned = [];
+        $inCodeBlock = false;
+        $blankLineCount = 0;
+
+        foreach ($lines as $line) {
+            // Track code blocks (```)
+            if (preg_match('/^```/', $line)) {
+                $inCodeBlock = !$inCodeBlock;
+                $cleaned[] = $line;
+                $blankLineCount = 0;
+                continue;
+            }
+
+            // Preserve code blocks as-is
+            if ($inCodeBlock) {
+                $cleaned[] = $line;
+                continue;
+            }
+
+            // Trim trailing whitespace
+            $line = rtrim($line);
+
+            // Skip excessive blank lines (max 2 consecutive)
+            if ($line === '') {
+                $blankLineCount++;
+                if ($blankLineCount <= 2) {
+                    $cleaned[] = '';
+                }
+                continue;
+            }
+
+            $blankLineCount = 0;
+
+            // Fix markdown links/images split across lines
+            // Pattern: `[]` on one line, `(url)` on next line with indentation
+            if (preg_match('/^\s*\[\]\s*$/', $line) && !empty($cleaned)) {
+                // Check if previous line ends with `![]` or `[]`
+                $prevIndex = count($cleaned) - 1;
+                while ($prevIndex >= 0 && trim($cleaned[$prevIndex]) === '') {
+                    $prevIndex--;
+                }
+                if ($prevIndex >= 0 && preg_match('/!?\[\]\s*$/', rtrim($cleaned[$prevIndex]))) {
+                    // Remove the standalone `[]` line, we'll merge it with the URL line
+                    array_pop($cleaned);
+                    // Next line should have the URL - we'll handle it in next iteration
+                    continue;
+                }
+            }
+
+            // Merge link text `[]` with URL `(url)` if they're on separate lines
+            if (preg_match('/^\s*\(https?:\/\/[^)]+\)\s*$/', $line) && !empty($cleaned)) {
+                $prevIndex = count($cleaned) - 1;
+                while ($prevIndex >= 0 && trim($cleaned[$prevIndex]) === '') {
+                    $prevIndex--;
+                }
+                if ($prevIndex >= 0 && preg_match('/!?\[\]\s*$/', rtrim($cleaned[$prevIndex]))) {
+                    // Merge: replace previous line's `[]` with `[]` + URL
+                    $cleaned[$prevIndex] = rtrim($cleaned[$prevIndex]) . ' ' . trim($line);
+                    continue;
+                }
+            }
+
+            // Remove excessive indentation (more than 4 spaces, except for lists)
+            if (preg_match('/^(\s{5,})/', $line, $matches) && !preg_match('/^(\s*)[-*+]\s/', $line)) {
+                $line = preg_replace('/^\s{4,}/', '    ', $line);
+            }
+
+            // Collapse multiple spaces to single space (except in URLs)
+            $line = preg_replace('/(?<!https?:)\s{2,}(?!\/\/)/', ' ', $line);
+
+            $cleaned[] = $line;
+        }
+
+        $result = implode("\n", $cleaned);
+
+        // Final cleanup: remove more than 2 consecutive blank lines
+        $result = preg_replace('/\n{3,}/', "\n\n", $result);
+
+        return trim($result);
     }
 
     /**
